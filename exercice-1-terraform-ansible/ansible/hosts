@@ -1,2 +1,8 @@
+# Inventaire Ansible - Exercice 1 (option Docker local)
+# Cible = VM Ubuntu 24.04 provisionnee par Terraform (dossier ../vm-cible), SSH publie sur :2222.
+# Ansible ne tournant pas nativement sous Windows, il est execute DANS un conteneur Docker :
+# la cible est donc jointe via host.docker.internal:2222 (et NON 127.0.0.1, qui designerait
+# le conteneur Ansible lui-meme). Le mot de passe (openclassrooms - defaut public du
+# starter-kit) est fourni au runtime via --extra-vars, il n'est donc PAS versionne ici.
 [all]
-127.0.0.1 ansible_ssh_user=openclassrooms ansible_ssh_port=2222
+target ansible_host=host.docker.internal ansible_port=2222 ansible_user=openclassrooms

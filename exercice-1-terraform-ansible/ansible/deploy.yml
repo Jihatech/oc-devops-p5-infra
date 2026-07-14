@@ -1,0 +1,68 @@
+---
+# Exercice 1 - Partie Ansible (Continuous Deployment)
+# Deploie l'application Angular "olympic-games-starter" derriere Nginx sur la VM cible.
+# 3 groupes de taches (Nginx, application, configuration) + 1 handler de redemarrage.
+- name: Openclassrooms P5 EDO deployment
+  hosts: all
+  become: true # les taches necessitent les droits root (apt, /var/www, /etc/nginx)
+
+  vars:
+    app_name: olympic-games-starter
+    app_root: /var/www/html/olympic-games-starter
+
+  tasks:
+    # --- Groupe 1 : Installation de Nginx ---
+    - name: Mettre a jour le cache apt et installer Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    # --- Groupe 2 : Installation de l'application Angular ---
+    - name: Creer le repertoire racine de l'application
+      ansible.builtin.file:
+        path: "{{ app_root }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: "0755"
+
+    - name: Copier les fichiers de l'application Angular sur la cible
+      ansible.builtin.copy:
+        src: "app/{{ app_name }}/"
+        dest: "{{ app_root }}/"
+        owner: www-data
+        group: www-data
+        mode: "0644"
+        directory_mode: "0755"
+
+    # --- Groupe 3 : Configuration de Nginx pour servir l'application ---
+    - name: Deployer la configuration du site (vhost servant l'app Angular)
+      ansible.builtin.copy:
+        src: nginx/app.conf
+        dest: /etc/nginx/sites-available/olympic.conf
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Redemarrer Nginx
+
+    - name: Activer le site (lien symbolique dans sites-enabled)
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/olympic.conf
+        dest: /etc/nginx/sites-enabled/olympic.conf
+        state: link
+      notify: Redemarrer Nginx
+
+    - name: Desactiver le site par defaut de Nginx (evite le conflit default_server)
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: Redemarrer Nginx
+
+  handlers:
+    # Handler declenche uniquement lorsqu'une tache "notify" modifie la configuration.
+    - name: Redemarrer Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted

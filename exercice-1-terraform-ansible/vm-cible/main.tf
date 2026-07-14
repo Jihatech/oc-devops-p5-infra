@@ -10,8 +10,10 @@ terraform {
 provider "docker" {}
 
 
+# NOTE : le starter-kit reference "qemux/qemu-docker:5.16", image retiree de Docker Hub
+# (le projet qemus/qemu a ete renomme). On utilise l'image maintenue equivalente.
 resource "docker_image" "qemu" {
-  name = "qemux/qemu-docker:5.16"
+  name = "qemux/qemu:latest"
 }
 
 resource "docker_volume" "qemu_storage" {

@@ -14,8 +14,7 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-# --- VM cible QEMU (artefacts jetables, lourds) ---
-exercice-1-terraform-ansible/vm-cible/share/
+# --- VM cible QEMU : .terraform local, mais on VERSIONNE share/cloud-init (config source légère) ---
 exercice-1-terraform-ansible/vm-cible/.terraform/
 
 # --- Secrets / clés ---

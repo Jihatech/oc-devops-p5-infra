@@ -1,0 +1,10 @@
+#cloud-config
+users:
+  - name: openclassrooms
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+ssh_pwauth: true
+chpasswd:
+  list: |
+    openclassrooms:openclassrooms
+  expire: false
