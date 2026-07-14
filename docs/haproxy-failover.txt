@@ -1,0 +1,37 @@
+===== TEST DE PANNE / REINTEGRATION HAPROXY =====
+
+--- Etat initial : 4 requetes (alternance attendue) ---
+req 1 -> 172.20.0.3
+req 2 -> 172.20.0.2
+req 3 -> 172.20.0.3
+req 4 -> 172.20.0.2
+
+>>> docker stop webserver1  (simulation de panne)
+    attente ~7s (fall 3 x inter 2s) que le health check marque le serveur DOWN...
+--- 6 requetes apres la panne (tout doit basculer sur webserver2 = 172.20.0.2) ---
+req 1 -> 
+req 2 -> 172.20.0.2
+req 3 -> 172.20.0.2
+req 4 -> 172.20.0.2
+req 5 -> 172.20.0.2
+req 6 -> 172.20.0.2
+
+--- Logs HAProxy : detection de la panne ---
+Server web_servers/webserver1 is DOWN, reason: Layer4 timeout, check duration: 2001ms. 1 active and 0 backup servers left. 1 sessions active, 0 requeued, 0 remaining in queue.
+[WARNING] 194/034922 (8) : Server web_servers/webserver1 is DOWN, reason: Layer4 timeout, check duration: 2001ms. 1 active and 0 backup servers left. 1 sessions active, 0 requeued, 0 remaining in queue.
+
+>>> docker start webserver1  (retour du serveur)
+    attente ~8s (rise 2) que le health check le reintegre...
+--- 6 requetes apres retour (l'alternance doit reprendre) ---
+req 1 -> 172.20.0.2
+req 2 -> 172.20.0.3
+req 3 -> 172.20.0.2
+req 4 -> 172.20.0.3
+req 5 -> 172.20.0.2
+req 6 -> 172.20.0.3
+
+--- Logs HAProxy : reintegration ---
+Server web_servers/webserver1 is DOWN, reason: Layer4 timeout, check duration: 2001ms. 1 active and 0 backup servers left. 1 sessions active, 0 requeued, 0 remaining in queue.
+[WARNING] 194/034922 (8) : Server web_servers/webserver1 is DOWN, reason: Layer4 timeout, check duration: 2001ms. 1 active and 0 backup servers left. 1 sessions active, 0 requeued, 0 remaining in queue.
+Server web_servers/webserver1 is UP, reason: Layer7 check passed, code: 200, check duration: 0ms. 2 active and 0 backup servers online. 0 sessions requeued, 0 total in queue.
+[WARNING] 194/034943 (8) : Server web_servers/webserver1 is UP, reason: Layer7 check passed, code: 200, check duration: 0ms. 2 active and 0 backup servers online. 0 sessions requeued, 0 total in queue.
