@@ -1,0 +1,31 @@
+### Preuve 1 : ansible ping -> pong
+target | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3.12"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+
+### Preuve 2 : 2e execution du playbook = idempotence (changed=0 attendu)
+TASK [Gathering Facts] *********************************************************
+ok: [target]
+TASK [Mettre a jour le cache apt et installer Nginx] ***************************
+ok: [target]
+TASK [Creer le repertoire racine de l'application] *****************************
+ok: [target]
+TASK [Copier les fichiers de l'application Angular sur la cible] ***************
+ok: [target]
+TASK [Deployer la configuration du site (vhost servant l'app Angular)] *********
+ok: [target]
+TASK [Activer le site (lien symbolique dans sites-enabled)] ********************
+ok: [target]
+TASK [Desactiver le site par defaut de Nginx (evite le conflit default_server)] ***
+ok: [target]
+PLAY RECAP *********************************************************************
+target                     : ok=7    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+### Preuve 3 : application servie sur le port 80 de la VM cible
+HTTP/1.1 200 OK
+Server: nginx/1.24.0 (Ubuntu)
+    <title>Olympic Games App</title>
