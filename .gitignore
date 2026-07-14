@@ -1,0 +1,30 @@
+# --- Terraform ---
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
+.terraformrc
+terraform.rc
+
+# --- VM cible QEMU (artefacts jetables, lourds) ---
+exercice-1-terraform-ansible/vm-cible/share/
+exercice-1-terraform-ansible/vm-cible/.terraform/
+
+# --- Secrets / clés ---
+*.pem
+*.key
+id_rsa*
+.env
+
+# --- OS / éditeurs ---
+.DS_Store
+Thumbs.db
+*.swp
